@@ -535,17 +535,22 @@ exec "!firefox %.html &"
 endif
 endfunc
 
+" +++
+" Instalacion coc
+map <silent> <F10> :call InstallCocs()<CR>
+func! InstallCocs()
+if &filetype == 'javascript'
+exec "CocInstall coc-tsserver"
+elseif &filetype == 'python'
+exec "CocInstall coc-pyright"
+endif
+endfunc
 
 " +++
 " CONFIG THEMES
 set t_Co=256
 colorscheme enfocado
 let g:enfocado_style = 'nature' " Available: `nature` or `neon`.
-noremap <silent>1 :colorscheme enfocado<CR>
-noremap <silent>2 :colorscheme onedark<CR>
-noremap <silent>3 :colorscheme peachpuff<CR>
-noremap <silent>4 :colorscheme embark<CR>
-noremap <silent>5 :colorscheme pink-panic<CR>
 
 " +++
 " AIRLINE ( o BAR LINE)
