@@ -144,6 +144,8 @@ Plug 'folke/twilight.nvim'
 
 Plug 'lukas-reineke/indent-blankline.nvim'
 
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
 call plug#end()
 
 " +++
