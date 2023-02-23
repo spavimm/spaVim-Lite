@@ -114,8 +114,6 @@ Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install' }
 
 Plug 'turbio/bracey.vim', {'do': 'npm install --prefix server'}
 
-Plug 'filipdutescu/renamer.nvim', { 'branch': 'master' }
-
 Plug 'kristijanhusak/vim-carbon-now-sh'
 
 Plug 'mfussenegger/nvim-dap'
@@ -445,13 +443,6 @@ noremap <leader>ll :Bracey<CR>
 noremap <leader>lq :BraceyStop<CR>
 " recargar página
 noremap <leader>lr :BraceyReload<CR>
-
-" +++
-" RENAMER
-inoremap <silent> <F2> <cmd>lua require 'renamer'.rename()<cr>
-nnoremap <silent> <leader>nn <cmd>lua require('renamer').rename()<cr>
-vnoremap <silent> <leader>nn <cmd>lua require('renamer').rename()<cr>
-hi default link RenamerBorder Pmenu
 
 " +++
 " CARBON
