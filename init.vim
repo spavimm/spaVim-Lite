@@ -146,6 +146,8 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 call plug#end()
 
+autocmd FileType scss setl iskeyword+=@-@
+
 " +++
 " INDENT-BLANCKLINE
 lua << EOF
@@ -543,6 +545,8 @@ if &filetype == 'javascript'
 exec "CocInstall coc-tsserver"
 elseif &filetype == 'python'
 exec "CocInstall coc-pyright"
+elseif &filetype == 'html'
+exec "CocInstall coc-html"
 endif
 endfunc
 
@@ -805,5 +809,3 @@ require'nvim-lsp-installer'.setup {
         }
     }
 EOF
-
-
