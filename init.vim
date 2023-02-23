@@ -144,6 +144,10 @@ Plug 'lukas-reineke/indent-blankline.nvim'
 
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
+Plug 'SirVer/ultisnips'
+" Snippets are separated from the engine. Add this if you want them:
+Plug 'honza/vim-snippets'
+
 call plug#end()
 
 autocmd FileType scss setl iskeyword+=@-@
@@ -809,3 +813,5 @@ require'nvim-lsp-installer'.setup {
         }
     }
 EOF
+
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
