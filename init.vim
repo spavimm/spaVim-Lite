@@ -23,6 +23,28 @@ if !filereadable(vimplug_exists)
   autocmd VimEnter * PlugInstall
 endif
 
+augroup vimrc-remember-cursor-position
+  autocmd!
+  autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+augroup END
+" Recordar la posición del cursor
+
+
+
+nnoremap <silent>t :call ToggleTrouble()<CR>
+
+function! ToggleTrouble()
+  if exists('g:trouble_mode')
+    if g:trouble_mode == 'lsp_workspace_diagnostics'
+      TroubleClose
+    else
+      TroubleToggle
+    endif
+  else
+    TroubleToggle
+  endif
+endfunction
+
 set autoindent " autoindent always ON.
 set expandtab " expand tabs
 set shiftwidth=4 " spaces for autoindenting
@@ -33,6 +55,8 @@ set encoding=UTF-8
 syntax on
 
 call plug#begin(expand('~/.config/nvim/plugged'))
+
+Plug 'tamton-aquib/staline.nvim'
 
 Plug 'preservim/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
@@ -45,14 +69,13 @@ Plug 'Raimondi/delimitMate'
 Plug 'jelera/vim-javascript-syntax'
 
 Plug 'wuelnerdotexe/vim-enfocado'
+Plug 'kvrohit/substrata.nvim'
 
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 Plug 'sheerun/vim-polyglot'
-
-Plug 'voldikss/vim-floaterm'
 
 Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
 
@@ -68,7 +91,129 @@ Plug 'turbio/bracey.vim', {'do': 'npm install --prefix server'}
 
 Plug 'kristijanhusak/vim-carbon-now-sh'
 
+"LSP Support
+Plug 'neovim/nvim-lspconfig'             " Required
+Plug 'williamboman/mason.nvim'           " Optional
+Plug 'williamboman/mason-lspconfig.nvim' " Optional
+" Autocompletion Engine
+Plug 'hrsh7th/nvim-cmp'         " Required
+Plug 'hrsh7th/cmp-nvim-lsp'     " Required
+Plug 'hrsh7th/cmp-buffer'       " Optional
+Plug 'hrsh7th/cmp-path'         " Optional
+Plug 'saadparwaiz1/cmp_luasnip' " Optional
+Plug 'hrsh7th/cmp-nvim-lua'     " Optional
+" Snippets
+Plug 'L3MON4D3/LuaSnip'             " Required
+Plug 'rafamadriz/friendly-snippets' " Optional
+" LSP Setup
+Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v1.x'}
+
+Plug 'folke/trouble.nvim'
+
+Plug 'akinsho/toggleterm.nvim', {'tag' : '*'}
+
 call plug#end()
+
+set signcolumn=yes
+
+" toggleterm
+lua << EOF
+require("toggleterm").setup{
+  -- Terminal en modo vertical
+  size = function(term)
+    if term.direction == "horizontal" then
+      return 15
+    elseif term.direction == "vertical" then
+      return vim.o.columns * 0.4
+    end
+  end,
+  -- Comandos de toggle sencillos
+  open_mapping = [[<c-j>]],
+  shade_terminals = true,
+  start_in_insert = true,
+  persist_size = true,
+  direction = 'vertical', --'horizontal', | 'tab', | 'float',
+  close_on_exit = true,
+  shell = vim.o.shell,
+}
+
+-- Mapeo para abrir la terminal
+vim.api.nvim_set_keymap("n", "<leader>tt", "<cmd>ToggleTerm<cr>", {noremap = true, silent = true})
+EOF
+
+" trouble
+lua << EOF
+require('trouble').setup(
+{
+    position = "bottom", -- position of the list can be: bottom, top, left, right
+    height = 6, -- height of the trouble list when position is top or bottom
+    width = 50, -- width of the list when position is left or right
+    icons = true, -- use devicons for filenames
+    mode = "workspace_diagnostics", -- "workspace_diagnostics", "document_diagnostics", "quickfix", "lsp_references", "loclist"
+    fold_open = "", -- icon used for open folds
+    fold_closed = "", -- icon used for closed folds
+    group = true, -- group results by file
+    padding = true, -- add an extra new line on top of the list
+    action_keys = { -- key mappings for actions in the trouble list
+        -- map to {} to remove a mapping, for example:
+        -- close = {},
+        close = "q", -- close the list
+        cancel = "<esc>", -- cancel the preview and get back to your last window / buffer / cursor
+        refresh = "r", -- manually refresh
+        jump = {"<cr>", "<tab>"}, -- jump to the diagnostic or open / close folds
+        open_split = { "<c-x>" }, -- open buffer in new split
+        open_vsplit = { "<c-v>" }, -- open buffer in new vsplit
+        open_tab = { "<c-t>" }, -- open buffer in new tab
+        jump_close = {"o"}, -- jump to the diagnostic and close the list
+        toggle_mode = "m", -- toggle between "workspace" and "document" diagnostics mode
+        toggle_preview = "P", -- toggle auto_preview
+        hover = "K", -- opens a small popup with the full multiline message
+        preview = "p", -- preview the diagnostic location
+        close_folds = {"zM", "zm"}, -- close all folds
+        open_folds = {"zR", "zr"}, -- open all folds
+        toggle_fold = {"zA", "za"}, -- toggle fold of current file
+        previous = "k", -- previous item
+        next = "j" -- next item
+    },
+    indent_lines = true, -- add an indent guide below the fold icons
+    auto_open = false, -- automatically open the list when you have diagnostics
+    auto_close = false, -- automatically close the list when you have no diagnostics
+    auto_preview = true, -- automatically preview the location of the diagnostic. <esc> to close preview and go back to last window
+    auto_fold = false, -- automatically fold a file trouble list at creation
+    auto_jump = {"lsp_definitions"}, -- for the given modes, automatically jump if there is only a single result
+    signs = {
+        -- icons / text used for a diagnostic
+        error = "",
+        warning = "",
+        hint = "",
+        information = "",
+        other = "﫠"
+    },
+    use_diagnostic_signs = false -- enabling this will use the signs defined in your lsp client
+})
+EOF
+
+" Vim Script
+nnoremap <leader>xx <cmd>TroubleToggle<cr>
+nnoremap <leader>xw <cmd>TroubleToggle workspace_diagnostics<cr>
+nnoremap <leader>xd <cmd>TroubleToggle document_diagnostics<cr>
+nnoremap <leader>xq <cmd>TroubleToggle quickfix<cr>
+nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
+nnoremap gR <cmd>TroubleToggle lsp_references<cr>
+
+
+" lsp zero
+lua <<EOF
+local lsp = require('lsp-zero').preset( {
+  name = 'minimal',
+  set_lsp_keymaps = true,
+  manage_nvim_cmp = true,
+  suggest_lsp_servers = false,
+})
+lsp.setup()
+EOF
+
+nnoremap <silent> <F10> :Mason<cr>
 
 
 " +++
@@ -234,12 +379,6 @@ require('bufferline').setup{}
 EOF
 
 
-" floaterm
-nnoremap <leader>tt :FloatermNew<cr>
-nnoremap <leader>ty :FloatermToggle<cr>
-nnoremap <leader>tp :FloatermNew python<cr>
-
-
 " +++
 "  telescope
 lua << EOF
@@ -303,21 +442,10 @@ nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 
 
 " +++
-" enfocado
+" theme
 set t_Co=256
 set background=dark
-let g:enfocado_style = 'neon'
-"let g:enfocado_style = 'nature'
-let g:enfocado_plugins = [
-            \   'aerial',
-            \   'bufferline',
-            \   'cmp',
-            \   'dap-ui',
-            \   'indent-blankline',
-            \   'lspconfig',
-            \   'telescope',
-            \ ]
-colorscheme enfocado
+colorscheme substrata
 
 
 " +++
@@ -391,3 +519,54 @@ noremap <Leader>hh :<C-u>vsplit<CR>
 
 noremap <Leader>vv :<C-u>split<CR>
 " Crear un split vertical
+
+" +++
+" staline
+lua << EOF
+require'staline'.setup {
+	defaults = {
+		fg = "#ffffff",
+                bg = "none",
+		cool_symbol = " ", -- (  ArchLinux), ( ⊞ Windows), ( ⌘ ¿Mac?) 
+		left_separator = "《",
+		right_separator = "》",
+		full_path = false,
+		mod_symbol = "",
+		line_column = "%l:%c [%L]",
+		true_colors = false,
+		branch_symbol = " ",
+		font_active = "bold",
+    noFile = '%:h',
+	},
+	
+	mode_colors = {
+		n  = "#454546",
+		i  = "#454546",
+		c  = "#454546",
+		v  = "#454546",
+	},
+	mode_icons = {
+		n = "NORMAL",
+		i = "INSERT",
+		c = "COMMANDs",
+		v = "VISUAL",
+	},
+	sections = {
+		left = {
+			'',
+			'-  spaVim Lite  ',' ',
+			'right_sep','%p%%',' ','right_sep',"❖","file_size",
+		},
+		mid  = {' ','-mode',' ','branch'},
+		right= {
+			'cool_symbol', ' ',
+			'left_sep',' ', ' ',' ', '',
+			'%F', ' ',
+		},
+	},
+	special_table = {
+		NvimTree = { 'NvimTree', ' ' },
+		packer = { 'Packer',' '},
+	},
+}
+EOF
